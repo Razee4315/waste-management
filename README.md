@@ -3,6 +3,15 @@
 ## Overview
 A comprehensive waste management system that helps track and optimize waste collection processes using interactive maps, real-time status updates, and analytics.
 
+## 📸 Project Screenshots
+Here are some snapshots of our waste-mangement interface:
+![Screenshot 1](/screenshots/1.jpg)
+![Screenshot 2](/screenshots/2.jpg)
+![Screenshot 3](/screenshots/3.jpg)
+![Screenshot 4](/screenshots/4.jpg)
+![Screenshot 5](/screenshots/5.jpg)
+
+
 ## 🚀 Features
 - Real-time dustbin status tracking
 - Interactive map visualization
