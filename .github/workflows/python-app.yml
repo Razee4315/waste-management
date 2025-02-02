@@ -1,4 +1,4 @@
-name: Python Application CI/CD
+name: Waste Management System CI/CD
 
 on:
   push:
@@ -12,11 +12,12 @@ permissions:
   id-token: write
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
+    
     - name: Set up Python 3.10
       uses: actions/setup-python@v5
       with:
@@ -33,45 +34,46 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     
-    - name: Build Executable
+    - name: Build Web Application
       run: |
+        mkdir -p dist/web
+        cp -r web/* dist/web/
         pyinstaller --onefile --add-data "web:web" main.py
-    
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: waste-management-app
-        path: dist/main
-        retention-days: 7
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Download Artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: waste-management-app
-        path: dist
-    
-    - name: Create GitHub Release
-      uses: softprops/action-gh-release@v2
-      with:
-        files: |
-          dist/main
-          requirements.txt
-        tag_name: v1.0.0-${{ github.sha }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./web
+        publish_dir: ./dist/web
         publish_branch: gh-pages
-        full_commit_message: ${{ github.event.head_commit.message }}
+        full_commit_message: Deploy web application
+    
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          dist/main
+          dist/web/*
+        tag_name: v1.0.0-${{ github.sha }}
+        body: |
+          ## Waste Management System Release
+          
+          ### Deployment Details
+          - Web Application deployed to GitHub Pages
+          - Executable built for local use
+          
+          ### Changelog
+          - Automated build and deployment
+          - Web interface updates
+          - Performance improvements
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: waste-management-full
+        path: |
+          dist/main
+          dist/web
+        retention-days: 30

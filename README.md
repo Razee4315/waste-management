@@ -48,14 +48,27 @@ We welcome contributions to implement the following features:
 
 ## 🚀 Deployment
 
-### GitHub Pages
-The web interface is deployed and accessible at: 
-https://razee4315.github.io/waste-management/
+### Live Web Application
+The web application is automatically deployed to GitHub Pages with each successful build:
+🌐 **Live Site**: https://razee4315.github.io/waste-management/
 
-### Executable
-You can download the latest executable from the [Releases](https://github.com/Razee4315/waste-management/releases) section.
+### Executable Release
+With every push to the main branch, a new release is automatically created:
+📦 **Latest Release**: [Download from Releases](https://github.com/Razee4315/waste-management/releases)
 
-### Local Development
+### Access Methods
+
+#### 1. Web Interface
+- Visit the GitHub Pages link above
+- No installation required
+- Runs directly in your web browser
+
+#### 2. Desktop Application
+- Download the latest executable from Releases
+- Run locally on your computer
+- Full offline functionality
+
+#### 3. Local Development
 1. Clone the repository
 ```bash
 git clone https://github.com/Razee4315/waste-management.git
@@ -71,6 +84,14 @@ pip install -r requirements.txt
 ```bash
 python main.py
 ```
+
+### Deployment Workflow
+- Automated CI/CD with GitHub Actions
+- Linting and code quality checks
+- Builds web and desktop versions
+- Deploys to GitHub Pages
+- Creates GitHub Release
+- Uploads artifacts for easy access
 
 ## 🤝 Contributing
 Contributions are welcome! If you're interested in helping develop this project, please read our [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
