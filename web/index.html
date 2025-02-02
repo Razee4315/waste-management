@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Waste Management System</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" crossorigin=""/>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+  <!-- p5.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" crossorigin=""></script>
+</head>
+<body>
+  <!-- Header -->
+  <header class="bg-primary text-white py-3 shadow-sm">
+    <div class="container d-flex justify-content-between align-items-center">
+      <h1 class="h4"><i class="bi bi-recycle"></i> Waste Management System</h1>
+      <nav>
+        <button class="btn btn-outline-light me-2" onclick="showPage('dashboard')"><i class="bi bi-speedometer2"></i> Dashboard</button>
+        <button class="btn btn-outline-light me-2" onclick="showPage('dustbinPoints')"><i class="bi bi-trash"></i> Dustbin Points</button>
+        <button class="btn btn-outline-light me-2" onclick="showPage('dumpingPoints')"><i class="bi bi-arrow-down-circle"></i> Dumping Points</button>
+        <button class="btn btn-outline-light me-2" onclick="showPage('nearest')"><i class="bi bi-compass"></i> Nearest Dumping</button>
+        <button class="btn btn-outline-light me-2" onclick="showPage('analytics')"><i class="bi bi-bar-chart-line"></i> Analytics</button>
+        <button class="btn btn-outline-light" onclick="showPage('info')"><i class="bi bi-info-circle"></i> Info</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Animated Background Canvas -->
+  <div id="canvas-container"></div>
+
+  <!-- Main Content Area -->
+  <main class="container my-4">
+    <!-- Dashboard Page -->
+    <section id="dashboard" class="page">
+      <div class="card shadow-sm mb-4">
+        <div class="card-body p-0">
+          <!-- Default map centered on Skardu, Pakistan -->
+          <div id="map" class="map-container"></div>
+        </div>
+      </div>
+      <div class="row text-center mb-4">
+        <div class="col-md-4 mb-3">
+          <div class="card text-white bg-success shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title"><i class="bi bi-trash-fill"></i> Total Dustbins</h5>
+              <p class="card-text" id="totalDustbins">0</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card text-white bg-warning shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title"><i class="bi bi-arrow-down-circle-fill"></i> Total Dumping Points</h5>
+              <p class="card-text" id="totalDumpingPoints">0</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card bg-light shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title"><i class="bi bi-clock-history"></i> Real-time Clock</h5>
+              <p class="card-text" id="clock"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <canvas id="chartCanvas" width="600" height="300"></canvas>
+        </div>
+      </div>
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-info text-white">
+          <h2 class="h6 mb-0"><i class="bi bi-file-earmark-text"></i> About This Software</h2>
+        </div>
+        <div class="card-body">
+          <p>This Waste Management System helps monitor and manage waste operations by displaying real‑time status of dustbin and dumping points, visualizing waste patterns, and offering route optimization.</p>
+          <p><strong>Created by:</strong> Saqlain Abbas</p>
+          <p><strong>GitHub:</strong> <a href="https://github.com/Razee4315" target="_blank">Razee4315</a></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dustbin Points Page -->
+    <section id="dustbinPoints" class="page" style="display:none;">
+      <div class="card shadow-sm">
+        <div class="card-header">
+          <h2 class="h5 mb-0"><i class="bi bi-trash"></i> Dustbin Points</h2>
+        </div>
+        <div class="card-body">
+          <div id="dustbinMap" class="map-container" style="height:500px;"></div>
+          <p>The map above shows all dustbin locations with color-coded markers. Click a marker to update or delete the dustbin.</p>
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#dustbinModal"><i class="bi bi-plus-circle"></i> Add New Dustbin</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dumping Points Page -->
+    <section id="dumpingPoints" class="page" style="display:none;">
+      <div class="card shadow-sm">
+        <div class="card-header">
+          <h2 class="h5 mb-0"><i class="bi bi-arrow-down-circle"></i> Dumping Points</h2>
+        </div>
+        <div class="card-body">
+          <div id="dumpingMap" class="map-container" style="height:500px;"></div>
+          <p>The map above shows all dumping points. Click a marker to delete the dumping point.</p>
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#dumpingModal"><i class="bi bi-plus-circle"></i> Add New Dumping Point</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Nearest Dumping Page -->
+    <section id="nearest" class="page" style="display:none;">
+      <div class="card shadow-sm">
+        <div class="card-header">
+          <h2 class="h5 mb-0"><i class="bi bi-compass"></i> Nearest Dumping Point</h2>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label for="dustbinSelect" class="form-label">Select Dustbin</label>
+            <select id="dustbinSelect" class="form-select" onchange="calculateNearest()">
+              <!-- Options loaded dynamically -->
+            </select>
+          </div>
+          <div id="nearestMap" class="map-container" style="height:500px;"></div>
+          <p id="nearestDetails" class="fw-bold"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Analytics Page -->
+    <section id="analytics" class="page" style="display:none;">
+      <div class="card shadow-sm">
+        <div class="card-header">
+          <h2 class="h5 mb-0"><i class="bi bi-bar-chart-line"></i> Analytics</h2>
+        </div>
+        <div class="card-body">
+          <canvas id="chartCanvas" width="600" height="400" class="mb-3"></canvas>
+          <div id="analyticsDetails"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Info & Settings Page -->
+    <section id="info" class="page" style="display:none;">
+      <div class="card shadow-sm">
+        <div class="card-header">
+          <h2 class="h5 mb-0"><i class="bi bi-info-circle"></i> System Info & Settings</h2>
+        </div>
+        <div class="card-body">
+          <p>Total Dustbins: <span id="totalDustbinsInfo"></span></p>
+          <p>Total Dumping Points: <span id="totalDumpingPointsInfo"></span></p>
+          <hr>
+          <h5>Update Dustbin Status</h5>
+          <form id="updateForm" onsubmit="updateStatus(); return false;">
+            <div class="mb-3">
+              <label for="dustbinId" class="form-label">Dustbin ID</label>
+              <input type="text" id="dustbinId" class="form-control" placeholder="e.g., D1" required>
+            </div>
+            <div class="mb-3">
+              <label for="newStatus" class="form-label">New Status</label>
+              <select id="newStatus" class="form-select">
+                <option value="Empty">Empty</option>
+                <option value="Partially Full">Partially Full</option>
+                <option value="Full">Full</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-arrow-repeat"></i> Update</button>
+          </form>
+          <p id="updateMessage" class="mt-2 fw-bold"></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-dark text-white py-3 mt-4">
+    <div class="container text-center">
+      <p>Developed by Saqlain Abbas | GitHub: <a href="https://github.com/Razee4315" target="_blank" class="text-white">Razee4315</a></p>
+    </div>
+  </footer>
+
+  <!-- Modal for Adding a Dustbin -->
+  <div class="modal fade" id="dustbinModal" tabindex="-1" aria-labelledby="dustbinModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="dustbinModalLabel"><i class="bi bi-plus-circle"></i> Add New Dustbin</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="dustbinPickerMap" class="map-container" style="height:500px;"></div>
+          <p class="mt-2">Click on the map above to select a location. Coordinates will be set automatically.</p>
+          <hr>
+          <form id="dustbinForm" onsubmit="addNewDustbin(); return false;">
+            <!-- ID is auto-generated -->
+            <div class="mb-3">
+              <label for="newDustbinName" class="form-label">Name</label>
+              <input type="text" id="newDustbinName" class="form-control" placeholder="e.g., Dustbin E" required>
+            </div>
+            <div class="mb-3">
+              <label for="newDustbinDescription" class="form-label">Description</label>
+              <textarea id="newDustbinDescription" class="form-control" rows="2" placeholder="Enter a short description"></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="newDustbinStatus" class="form-label">Status</label>
+              <select id="newDustbinStatus" class="form-select">
+                <option value="Empty">Empty</option>
+                <option value="Partially Full">Partially Full</option>
+                <option value="Full">Full</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Coordinates</label>
+              <div class="input-group">
+                <input type="text" id="newDustbinLat" class="form-control" placeholder="Latitude" readonly required>
+                <input type="text" id="newDustbinLng" class="form-control" placeholder="Longitude" readonly required>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-success"><i class="bi bi-check-circle"></i> Add Dustbin</button>
+          </form>
+          <p id="dustbinMessage" class="mt-2 fw-bold"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for Adding a Dumping Point -->
+  <div class="modal fade" id="dumpingModal" tabindex="-1" aria-labelledby="dumpingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="dumpingModalLabel"><i class="bi bi-plus-circle"></i> Add New Dumping Point</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="dumpingPickerMap" class="map-container" style="height:500px;"></div>
+          <p class="mt-2">Click on the map above to select a location. Coordinates will be set automatically.</p>
+          <hr>
+          <form id="dumpingForm" onsubmit="addNewDumping(); return false;">
+            <!-- ID is auto-generated -->
+            <div class="mb-3">
+              <label for="newDumpingName" class="form-label">Name</label>
+              <input type="text" id="newDumpingName" class="form-control" placeholder="e.g., Dumping Site 3" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Coordinates</label>
+              <div class="input-group">
+                <input type="text" id="newDumpingLat" class="form-control" placeholder="Latitude" readonly required>
+                <input type="text" id="newDumpingLng" class="form-control" placeholder="Longitude" readonly required>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-success"><i class="bi bi-check-circle"></i> Add Dumping Point</button>
+          </form>
+          <p id="dumpingMessage" class="mt-2 fw-bold"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMPORTANT: Load eel.js before your custom scripts -->
+  <script src="/eel.js"></script>
+  <!-- Bootstrap Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Custom JS Files -->
+  <script src="script.js"></script>
+  <script src="p5sketch.js"></script>
+</body>
+</html>

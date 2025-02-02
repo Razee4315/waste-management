@@ -1,0 +1,4 @@
+eel==0.16.0
+pyinstaller==5.7.0
+setuptools==67.6.1
+wheel==0.40.0
