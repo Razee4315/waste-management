@@ -7,7 +7,9 @@ on:
     branches: [ "main" ]
 
 permissions:
-  contents: read
+  contents: write
+  pages: write
+  id-token: write
 
 jobs:
   build:
@@ -23,19 +25,23 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest
+        pip install flake8 pytest eel pyinstaller
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     
     - name: Lint with flake8
       run: |
-        # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     
-    - name: Test with pytest
+    - name: Build Executable
       run: |
-        pytest
+        pyinstaller --onefile --add-data "web:web" main.py
+    
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: waste-management-app
+        path: dist/main
 
   deploy:
     needs: build
@@ -44,21 +50,14 @@ jobs:
     
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v3
+    
+    - name: Download Artifact
+      uses: actions/download-artifact@v3
       with:
-        python-version: "3.10"
+        name: waste-management-app
+        path: dist
     
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install pyinstaller
-    
-    - name: Build executable
-      run: |
-        pyinstaller --onefile main.py
-    
-    - name: Create Release
+    - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:
         files: |
@@ -67,3 +66,11 @@ jobs:
         tag_name: v1.0.0-${{ github.sha }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./web
+        publish_branch: gh-pages
+        full_commit_message: ${{ github.event.head_commit.message }}

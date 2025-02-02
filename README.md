@@ -46,6 +46,32 @@ We welcome contributions to implement the following features:
    - Generate comprehensive waste management reports
    - Trend analysis and forecasting
 
+## 🚀 Deployment
+
+### GitHub Pages
+The web interface is deployed and accessible at: 
+https://razee4315.github.io/waste-management/
+
+### Executable
+You can download the latest executable from the [Releases](https://github.com/Razee4315/waste-management/releases) section.
+
+### Local Development
+1. Clone the repository
+```bash
+git clone https://github.com/Razee4315/waste-management.git
+cd waste-management
+```
+
+2. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+3. Run the application
+```bash
+python main.py
+```
+
 ## 🤝 Contributing
 Contributions are welcome! If you're interested in helping develop this project, please read our [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
