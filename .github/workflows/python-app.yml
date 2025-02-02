@@ -23,57 +23,37 @@ jobs:
       with:
         python-version: "3.10"
     
-    - name: Install dependencies
+    - name: Prepare GitHub Pages Deploy
       run: |
-        python -m pip install --upgrade pip
-        pip install flake8 pytest eel pyinstaller
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    
-    - name: Lint with flake8
-      run: |
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    
-    - name: Build Web Application
-      run: |
-        mkdir -p dist/web
-        cp -r web/* dist/web/
-        pyinstaller --onefile --add-data "web:web" main.py
+        mkdir -p gh-pages
+        cp -r web/* gh-pages/
+        echo "waste-management.razee4315.github.io" > gh-pages/CNAME
     
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./dist/web
+        publish_dir: ./gh-pages
         publish_branch: gh-pages
         full_commit_message: Deploy web application
+        user_name: 'github-actions[bot]'
+        user_email: 'github-actions[bot]@users.noreply.github.com'
     
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
         files: |
-          dist/main
-          dist/web/*
+          web/*
         tag_name: v1.0.0-${{ github.sha }}
         body: |
           ## Waste Management System Release
           
           ### Deployment Details
           - Web Application deployed to GitHub Pages
-          - Executable built for local use
+          - Full source code included
           
           ### Changelog
-          - Automated build and deployment
-          - Web interface updates
-          - Performance improvements
+          - Automated web deployment
+          - Latest web interface updates
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: waste-management-full
-        path: |
-          dist/main
-          dist/web
-        retention-days: 30
